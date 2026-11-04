@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aprenda a criar agentes e automações</title>
+<meta name="description" content="Uma aula prática para construir agentes de IA e automações que trabalham por você.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #eef1f6;
+    --ink: #14213d;
+    --violet: #5b3df5;
+    --amber: #ffb020;
+    --white: #ffffff;
+    --muted: #4a5675;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Instrument Sans", system-ui, sans-serif;
+    line-height: 1.6;
+    background-color: var(--paper);
+    background-image: radial-gradient(#c3cbdc 1.2px, transparent 1.2px);
+    background-size: 24px 24px;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 56px 20px 72px; }
+  h1, h2 { font-family: "Bricolage Grotesque", system-ui, sans-serif; line-height: 1.08; margin: 0; }
+  h1 { font-size: clamp(2.2rem, 7vw, 4.2rem); font-weight: 800; max-width: 14ch; letter-spacing: -0.02em; }
+  h2 { font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 800; }
+  .lead { font-size: 1.15rem; color: var(--muted); max-width: 52ch; margin: 20px 0 40px; }
+
+  /* Fluxo: gatilho -> agente -> ação */
+  .flow { display: flex; align-items: stretch; }
+  .node {
+    flex: 1; background: var(--white); border: 2px solid var(--ink);
+    border-radius: 14px; padding: 16px 18px;
+  }
+  .node.agent { border-color: var(--violet); box-shadow: 0 0 0 4px rgba(91,61,245,.15); }
+  .node b { display: block; font-size: .85rem; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+  .node.agent b { color: var(--violet); }
+  .node span { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 500; font-size: 1.15rem; line-height: 1.25; }
+  .wire { flex: 0 0 56px; position: relative; }
+  .wire::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--ink); }
+  .wire::after {
+    content: ""; position: absolute; top: 50%; left: 0; width: 12px; height: 12px;
+    margin-top: -6px; border-radius: 50%; background: var(--amber); border: 2px solid var(--ink);
+    animation: pulse-x 2.4s ease-in-out infinite;
+  }
+  .wire:nth-of-type(4)::after { animation-delay: 1.2s; }
+  @keyframes pulse-x { 0% { left: 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { left: calc(100% - 12px); opacity: 0; } }
+  @keyframes pulse-y { 0% { top: 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: calc(100% - 12px); opacity: 0; } }
+
+  /* Aula */
+  section { margin-top: 88px; }
+  .lesson-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+  .lesson-head p { margin: 0; color: var(--muted); }
+  .frame { background: var(--white); border: 2px solid var(--ink); border-radius: 14px; padding: 10px; }
+  .video { aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: #000; }
+  .video iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  /* Material (PDF) e quiz */
+  .next { display: flex; gap: 28px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .next p { margin: 8px 0 0; color: var(--muted); max-width: 44ch; }
+  .btn {
+    display: inline-block; padding: 16px 28px; background: var(--violet); color: var(--white);
+    font-weight: 600; font-size: 1.05rem; text-decoration: none; border-radius: 999px;
+    border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+  .btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+  .btn.alt { background: var(--white); color: var(--ink); }
+
+  @media (max-width: 680px) {
+    main { padding-top: 40px; }
+    .flow { flex-direction: column; }
+    .wire { flex-basis: 40px; }
+    .wire::before { left: 50%; right: auto; top: 0; bottom: 0; width: 2px; height: auto; }
+    .wire::after { left: 50%; top: 0; margin: 0 0 0 -6px; animation-name: pulse-y; }
+    .btn { width: 100%; text-align: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .wire::after { animation: none; opacity: 1; left: calc(50% - 6px); }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Faça a IA trabalhar por você</h1>
+    <p class="lead">Nesta aula você aprende a montar agentes de IA e automações do zero: o que dispara a tarefa, quem decide e o que acontece no final.</p>
+
+    <div class="flow" role="img" aria-label="Exemplo de automação: chega um e-mail, o agente lê e decide, a ação é executada">
+      <div class="node"><b>Gatilho</b><span>Chega um e-mail de cliente</span></div>
+      <div class="wire"></div>
+      <div class="node agent"><b>Agente de IA</b><span>Lê, entende e decide</span></div>
+      <div class="wire"></div>
+      <div class="node"><b>Ação</b><span>Cria a tarefa e responde</span></div>
+    </div>
+  </header>
+
+  <section id="aula">
+    <div class="lesson-head">
+      <h2>Assista à aula</h2>
+      <p>Do conceito ao primeiro fluxo funcionando.</p>
+    </div>
+    <div class="frame">
+      <div class="video">
+        <iframe src="https://www.youtube.com/embed/xkd2-xD9AXY" title="Aula sobre agentes e automações" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="next" id="material">
+    <div>
+      <h2>Material da aula</h2>
+      <p>Baixe o PDF para acompanhar a aula ou consultar depois.</p>
+    </div>
+    <div>
+      <a class="btn alt" href="material-aula.pdf" download>Baixar o PDF</a>
+    </div>
+  </section>
+
+  <section class="next">
+    <div>
+      <h2>Teste o que você aprendeu</h2>
+      <p>Faça o quiz para fixar os conceitos de agentes e automações e ver o que ainda vale rever na aula.</p>
+    </div>
+    <a class="btn" href="https://view.genially.com/6ab12e5bb123a1e15a5e32ff" target="_blank" rel="noopener">Fazer o quiz</a>
+  </section>
+</main>
+</body>
+</html>
